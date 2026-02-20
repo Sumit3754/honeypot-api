@@ -2,7 +2,7 @@ fastapi
 uvicorn
 pydantic
 httpx
-scikit-learn
+scikit-learn==1.7.2
 pandas
 joblib
 google-generativeai
