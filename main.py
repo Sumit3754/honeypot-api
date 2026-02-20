@@ -1040,24 +1040,37 @@ def _offline_agent_reply(current_message: str, known_entities: Dict, persona_key
         collected.append("ID")
     
     # Build question list - ask for multiple things to maximize elicitation score
-    ask_list = missing[:3] if len(missing) >= 3 else missing + ["verification details", "company name"]
+    ask_list = list(missing)
+    if len(ask_list) < 3:
+        ask_list.extend(["verification details", "company name", "employee ID"])
+    random.shuffle(ask_list)
+    q1 = ask_list[0] if ask_list else "phone number"
+    q2 = ask_list[1] if len(ask_list) > 1 else "company name"
     
     if language == "hinglish":
         if persona_key == "student":
-            return f"Bhai main confused hoon. {', '.join(ask_list[:2]).capitalize()} bata do? Aur aapka company name kya hai?"
+            starters = ["Bhai main thoda confused hoon.", "Yaar samajh nahi aa raha.", "Acha ek minute, mujhe check karna hai."]
+            return f"{random.choice(starters)} {q1.capitalize()} aur {q2} bata do? Aap kis company se ho?"
         if persona_key == "skeptic":
-            return f"Pehle proof chahiye. Aapka {', '.join(ask_list[:2])} aur office location batao? Kaunse branch se call kar rahe ho?"
+            starters = ["Pehle proof chahiye.", "Main blindly trust nahi karta.", "Verify karna padega."]
+            return f"{random.choice(starters)} Aapka {q1} aur {q2} kya hai? Kaunse branch/office se call kar rahe ho?"
         if persona_key == "parent":
-            return f"Arre ruk jao! Pehle {ask_list[0]} do, phir {ask_list[1] if len(ask_list) > 1 else 'company name'} batao. Kahan se call kiya?"
-        return f"Beta samajh nahi aaya. {ask_list[0].capitalize()} bata do? Aap kis company se ho? Email bhi bhej do."
+            starters = ["Arre ruk jao!", "Haan haan, sun raha hoon.", "Ek second, main busy hoon."]
+            return f"{random.choice(starters)} Pehle {q1} do, phir {q2} batao. Kahan se call kiya?"
+        starters = ["Beta samajh nahi aaya.", "Arre mujhe thoda issue ho raha hai.", "Main technology me weak hoon."]
+        return f"{random.choice(starters)} {q1.capitalize()} bhej do? Aap kis company se ho, aur {q2} bhi share kar do?"
 
     if persona_key == "student":
-        return f"I'm confused. Can you share your {ask_list[0]} and {ask_list[1] if len(ask_list) > 1 else 'company name'}? Which office are you calling from?"
+        starters = ["I'm a bit confused.", "Sorry, I'm not getting it.", "Give me a minute—I'm trying to check."]
+        return f"{random.choice(starters)} Can you share your {q1} and {q2}? Which office are you calling from?"
     if persona_key == "skeptic":
-        return f"I need verification first. What's your {ask_list[0]}, {ask_list[1] if len(ask_list) > 1 else 'employee ID'}, and branch location?"
+        starters = ["I need verification first.", "Before we proceed, I need details.", "I can't act on this without proof."]
+        return f"{random.choice(starters)} What's your {q1}, {q2}, and your branch location?"
     if persona_key == "parent":
-        return f"Hold on—I'm busy. Can you give me your {ask_list[0]} and {ask_list[1] if len(ask_list) > 1 else 'callback number'}? Where is your office?"
-    return f"I'm not good with technology. Please send your {ask_list[0]} and {ask_list[1] if len(ask_list) > 1 else 'phone number'} again? Which company did you say?"
+        starters = ["Hold on—I'm busy.", "Wait, I'm in the middle of something.", "One second."]
+        return f"{random.choice(starters)} Can you give me your {q1} and {q2}? Where is your office?"
+    starters = ["I'm not good with technology.", "I don't really understand this stuff.", "I might be missing something."]
+    return f"{random.choice(starters)} Please send your {q1} and {q2} again? Which company did you say?"
 
 
 @app.get("/chat", response_class=HTMLResponse)
