@@ -5,7 +5,7 @@ httpx
 scikit-learn
 pandas
 joblib
-groq
+google-generativeai
 python-dotenv
 
 pytest

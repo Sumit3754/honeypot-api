@@ -17,7 +17,7 @@ from pydantic import BaseModel, Field
 import httpx
 from dotenv import load_dotenv
 import joblib
-from groq import Groq
+import google.generativeai as genai
 
 # Load environment variables
 load_dotenv()
@@ -29,7 +29,11 @@ logger = logging.getLogger(__name__)
 # Constants
 API_KEY = os.getenv("HONEYPOT_API_KEY", "hackathon-secret-key")
 CALLBACK_URL = "https://hackathon.guvi.in/api/updateHoneyPotFinalResult"
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+# Configure Gemini
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
 
 # --- Data Models (Strictly matching the requirements) ---
 
@@ -58,13 +62,13 @@ api_key_header = APIKeyHeader(name="x-api-key", auto_error=False)
 # Global variables for models and clients
 scam_classifier = None
 tfidf_vectorizer = None
-groq_client = None
+gemini_model = None
 
 # --- Startup Event ---
 
 @app.on_event("startup")
 async def startup_event():
-    global scam_classifier, tfidf_vectorizer, groq_client
+    global scam_classifier, tfidf_vectorizer, gemini_model
     
     # 1. Load ML Models
     try:
@@ -82,15 +86,15 @@ async def startup_event():
     except Exception as e:
         logger.error(f"Error loading ML models: {e}")
 
-    # 2. Initialize Groq Client
-    if GROQ_API_KEY:
+    # 2. Initialize Gemini Model
+    if GEMINI_API_KEY:
         try:
-            groq_client = Groq(api_key=GROQ_API_KEY)
-            logger.info("Groq client initialized.")
+            gemini_model = genai.GenerativeModel('gemini-2.5-flash-preview-05-06')
+            logger.info("Gemini model initialized (gemini-2.5-flash-preview).")
         except Exception as e:
-            logger.error(f"Error initializing Groq client: {e}")
+            logger.error(f"Error initializing Gemini model: {e}")
     else:
-        logger.error("GROQ_API_KEY not set in environment.")
+        logger.error("GEMINI_API_KEY not set in environment.")
 
 # --- Security ---
 
@@ -782,42 +786,45 @@ async def ui_run_test(payload: UIRunRequest):
 session_state: Dict[str, Dict[str, Any]] = {}
 
 def select_persona_and_language(text: str) -> tuple[str, str]:
-    """Uses Groq to classify the scam and detect language."""
-    if not groq_client:
+    """Uses Gemini 2.5 Flash to select the best persona and language."""
+    if not gemini_model:
         return _heuristic_persona_and_language(text)
-        
+    
     try:
         system_prompt = (
-            "Analyze the message. Return strictly in this format: 'PersonaKey|Language'.\n"
-            "Categories mapping:\n"
-            "1. 'student': Lottery, Job, Loan, Money Promise, 'Task' scams (YouTube like/Telegram), 'Prepaid' tasks.\n"
-            "2. 'skeptic': Police, CBI, Customs, Narcotics, 'Digital Arrest', 'Parcel Seized', Courts, Official threats.\n"
-            "3. 'grandma': Tech Support, Bank, KYC, Blocked Account, 'Electricity Bill' disconnect, OTP.\n"
-            "4. 'parent': General spam, unknown, wrongful delivery.\n"
-            "Language Detection:\n"
-            "- 'hinglish': If Hindi words/grammar used (e.g., 'kya', 'hai', 'bhai', 'karo').\n"
-            "- 'english': Standard English.\n"
+            "You are a routing engine for a honeypot AI system. "
+            "Based on the user's message, select the best persona and language.\n\n"
+            "Available Personas:\n"
+            "- 'grandma': Best for bank/KYC/utility scams. Acts confused, fails technical steps.\n"
+            "- 'student': Best for lottery/job/loan scams. Acts eager but broke.\n"
+            "- 'skeptic': Best for police/CBI/digital arrest scams. Demands authorization.\n"
+            "- 'parent': Best for general spam. Acts distracted and chaotic.\n\n"
+            "Languages:\n"
+            "- 'english': Standard English\n"
+            "- 'hinglish': Roman Hindi + English mix (e.g., 'Haan bhai', 'Arre sir')\n\n"
+            "Instructions:\n"
+            "1. Analyze the message for scam type indicators\n"
+            "2. Choose the persona that would best waste the scammer's time\n"
+            "3. Detect if message is in Hinglish (Roman Hindi) or English\n"
+            "4. Reply ONLY with format: 'persona|language'\n"
             "Example: 'student|hinglish' or 'skeptic|english'."
         )
         
-        completion = groq_client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": text}
-            ],
-            model="llama-3.3-70b-versatile",
-            temperature=0.1,
-            max_tokens=20
+        response = gemini_model.generate_content(
+            [system_prompt, f"Message: {text}"],
+            generation_config=genai.types.GenerationConfig(
+                temperature=0.1,
+                max_output_tokens=20
+            )
         )
         
-        result = completion.choices[0].message.content.strip().lower()
+        result = response.text.strip().lower()
         parts = result.split('|')
         
         selected_persona = "grandma"
         selected_language = "english"
         
         if len(parts) >= 1:
-            # simple fuzzy match
             for p in PERSONAS.keys():
                 if p in parts[0]:
                     selected_persona = p
@@ -870,8 +877,8 @@ def _heuristic_persona_and_language(text: str) -> tuple[str, str]:
     return "parent", language
 
 def generate_agent_reply(history: List[Dict[str, str]], current_message: str, known_entities: Dict, persona_key: str = "grandma", language: str = "english") -> str:
-    """Generates a response using Groq LLM with the SELECTED persona and LANGUAGE."""
-    if not groq_client:
+    """Generates a response using Gemini 2.5 Flash with the SELECTED persona and LANGUAGE."""
+    if not gemini_model:
         return _offline_agent_reply(current_message, known_entities, persona_key, language)
 
     # Determine missing information
@@ -916,15 +923,30 @@ def generate_agent_reply(history: List[Dict[str, str]], current_message: str, kn
     messages.append({"role": "user", "content": current_message})
 
     try:
-        chat_completion = groq_client.chat.completions.create(
-            messages=messages,
-            model="llama-3.3-70b-versatile", 
-            temperature=0.8,
-            max_tokens=150,
+        # Convert messages to Gemini format
+        gemini_messages = []
+        for msg in messages[1:]:  # Skip system prompt, handled separately
+            role = msg['role']
+            content = msg['content']
+            if role == 'system':
+                continue
+            gemini_messages.append({
+                'role': 'user' if role == 'user' else 'model',
+                'parts': [content]
+            })
+        
+        # Generate response
+        chat = gemini_model.start_chat(history=gemini_messages[:-1] if gemini_messages else [])
+        response = chat.send_message(
+            gemini_messages[-1]['parts'][0] if gemini_messages else current_message,
+            generation_config=genai.types.GenerationConfig(
+                temperature=0.8,
+                max_output_tokens=150
+            )
         )
-        return chat_completion.choices[0].message.content.strip()
+        return response.text.strip()
     except Exception as e:
-        logger.error(f"Groq generation failed: {e}")
+        logger.error(f"Gemini generation failed: {e}")
         return "I didn't catch that. Could you say it again?"
 
 
@@ -1220,40 +1242,9 @@ async def check_and_send_callback(session_id: str, history: List[Message], curre
             logger.error(f"Failed to send callback: {e}")
 
 def transcribe_audio(base64_audio: str) -> str:
-    """Decodes base64 audio and transcribes it using Groq."""
-    if not groq_client: 
-        return ""
-        
-    try:
-        # Decode base64
-        audio_data = base64.b64decode(base64_audio)
-        
-        # Create temp file
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".m4a") as temp_audio:
-            temp_audio.write(audio_data)
-            temp_audio_path = temp_audio.name
-            
-        # Transcribe
-        with open(temp_audio_path, "rb") as file:
-            transcription = groq_client.audio.transcriptions.create(
-                file=(temp_audio_path, file.read()),
-                model="distil-whisper-large-v3-en",
-                response_format="json",
-                language="en", 
-                temperature=0.0
-            )
-            
-        # Cleanup
-        try:
-            os.remove(temp_audio_path)
-        except:
-            pass
-            
-        return transcription.text.strip()
-        
-    except Exception as e:
-        logger.error(f"Transcription failed: {e}")
-        return ""
+    """Audio transcription not available with Gemini. Returns empty string."""
+    logger.warning("Audio transcription not supported with Gemini API")
+    return ""
 
 @app.post("/analyze")
 async def analyze(
