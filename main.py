@@ -1337,6 +1337,7 @@ async def analyze(
         full_text = (request.message.text or "") + " " + " ".join([m.text or "" for m in request.conversationHistory])
         all_entities = extract_entities(full_text)
         
+        # Initialize reply - will be overridden for scam messages
         agent_reply = "I don't think I am interested. Thank you."
         
         if is_scam:
@@ -1401,6 +1402,16 @@ async def analyze(
             elicitation_count = sum(1 for kw in elicitation_keywords if kw in msg_lower)
             if elicitation_count > 0:
                 current_state["elicitation_attempts"] = current_state.get("elicitation_attempts", 0) + elicitation_count
+            
+            # --- Generate Reply with AI or Fallback ---
+            history_dicts = [m.dict() for m in request.conversationHistory]
+            agent_reply = generate_agent_reply(
+                history_dicts, 
+                request.message.text, 
+                all_entities, 
+                current_state["persona"],
+                current_state["language"]
+            )
             
             # Track red flags in our own replies (for scoring)
             reply_lower = agent_reply.lower()
