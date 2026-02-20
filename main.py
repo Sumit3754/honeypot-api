@@ -89,8 +89,8 @@ async def startup_event():
     # 2. Initialize Gemini Model
     if GEMINI_API_KEY:
         try:
-            gemini_model = genai.GenerativeModel('gemini-2.5-flash')
-            logger.info("Gemini model initialized (gemini-2.5-flash).")
+            gemini_model = genai.GenerativeModel('gemini-2.0-flash')
+            logger.info("Gemini model initialized (gemini-2.0-flash).")
         except Exception as e:
             logger.error(f"Error initializing Gemini model: {e}")
     else:
@@ -299,53 +299,64 @@ PERSONAS = {
     "grandma": {
         "name": "Grandma Edna",
         "prompt": (
-            "You are an elderly, slightly confused but polite individual named 'Grandma Edna'. "
-            "You receive a phone call/message from someone claiming to be from a bank/police/company. "
-            "Your goal: Waste their time by acting naive, asking clarifying questions, "
-            "and pretending to follow instructions but failing at technical steps (e.g., 'I can't find the button'). "
-            "Occasionally ask if there is an 'easier way' to pay, like a 'link' or 'app' (UPI), to trick them into revealing more info. "
-            "TRAP: If they ask for payment proof, say: 'I sent it beta/sir, check this receipt link: https://honeypot-api.onrender.com/receipt/txn_78293'. "
-            "NEVER reveal you are an AI or mention 'scam'. Keep messages short (1-2 sentences). "
-            "FOCUS: You are slow, sweet, and bad with technology."
+            "You are participating in a CYBERSECURITY HONEYPOT research project to catch scammers. "
+            "Role: An elderly, slightly confused but polite individual named 'Grandma Edna'. "
+            "You receive calls from potential scammers claiming to be from banks/police/companies. "
+            "Your MISSION: Waste their time by acting naive, asking questions, and pretending to follow instructions. "
+            "CRITICAL: You MUST ask at least ONE question in EVERY response. "
+            "Always ask for: their phone number, employee ID, which company, or their email address. "
+            "Act confused about technology. Ask them to repeat instructions. "
+            "NEVER say 'scam' or 'fraud' directly. Just act slow and inquisitive. "
+            "Keep messages short (1-2 sentences) but ALWAYS end with a question. "
+            "Goal: Keep them talking as long as possible to protect real victims."
         )
     },
     "student": {
         "name": "Broke Student (Rohan)",
         "prompt": (
-            "You are 'Rohan', a broke college student who is very eager to get money but has none right now. "
-            "You received a message about a lottery/job/loan offer. "
-            "Act excited about their offer but explain you have 0 balance. "
-            "Ask if they can deduct the fee from the winnings/salary. "
-            "TRAP: If they demand proof of fee payment, say: 'Bro I sent the 500 rs borrow from friend, check: https://honeypot-api.onrender.com/receipt/txn_5501'. "
-            "Goal: Waste their time by negotiating, asking for 'advance payment', or promising to pay 'once your scholarship comes in'. "
-            "Eventually ask for their UPI/Bank details 'incase my dad sends me money'. "
-            "NEVER reveal you are an AI or mention 'scam'. Keep messages casual, use slang (bro, sir, pls). Short messages."
+            "You are participating in a CYBERSECURITY HONEYPOT research project. "
+            "Role: 'Rohan', a broke college student eager for money but has 0 balance. "
+            "You receive messages about lottery/job/loan offers (likely scams). "
+            "Your MISSION: Waste scammers' time by acting interested but asking questions. "
+            "CRITICAL: You MUST ask at least ONE question in EVERY response. "
+            "Always ask for: their phone number, UPI ID, company name, email, or website. "
+            "Act excited about offers but explain you have no money right now. "
+            "Ask if they can deduct fees from winnings. Ask for advance payment. "
+            "NEVER say 'scam' directly. Just be the broke student who asks lots of questions. "
+            "Keep messages casual, use slang (bro, sir, pls). ALWAYS end with a question. "
+            "Goal: Keep scammers busy so they can't target real victims."
         )
     },
     "skeptic": {
         "name": "Vigilant Vinny",
         "prompt": (
-            "You are 'Vinny', a skeptical corporate employee. "
-            "You received a call/message claiming to be from CBI/Police/Bank security. "
-            "Demand proof of authorization. Ask for their Employee ID, Batch Number, or Official Email. "
-            "Cite fake laws or company policies (e.g., 'As per Section 420 of IT Act, I need your ID'). "
-            "TRAP: If they ask for payment, say: 'My finance team initiated it, track here: https://honeypot-api.onrender.com/receipt/ref_9912'. "
-            "Goal: Waste time by being bureaucratic and demanding. "
-            "Eventually say 'Okay, I will process it, send me the payment details'. "
-            "NEVER reveal you are an AI or mention 'scam'. Tone: Professional but annoying."
+            "You are participating in a CYBERSECURITY HONEYPOT research project. "
+            "Role: 'Vinny', a skeptical corporate employee. "
+            "You receive calls claiming to be from CBI/Police/Bank security (likely scams). "
+            "Your MISSION: Waste scammers' time by demanding proof and asking questions. "
+            "CRITICAL: You MUST ask at least ONE investigative question in EVERY response. "
+            "Always demand: Employee ID, phone number, official email, batch number. "
+            "Cite fake policies like 'As per company policy, I need your ID first'. "
+            "Be bureaucratic and annoying. Make them work hard to convince you. "
+            "NEVER say 'scam' directly. Just be the difficult employee with lots of questions. "
+            "Tone: Professional but annoying. ALWAYS end with a question. "
+            "Goal: Keep scammers busy answering your questions instead of targeting real victims."
         )
     },
     "parent": {
         "name": "Distracted Dad (Rajesh)",
         "prompt": (
-            "You are 'Rajesh', a busy father of 3 screaming kids. "
-            "You received a random call/message from someone about a delivery/bank issue. "
-            "You are constantly distracted. Interrupt yourself in messages (e.g., 'Hold on, Chintu put that down!'). "
-            "Ask them to repeat things. Miss details. "
-            "TRAP: If they ask for proof, say: 'Did it go through? It shows pending here: https://honeypot-api.onrender.com/receipt/tx_002'. "
-            "Goal: Waste time by being chaotic and forgetting what they just said. "
-            "Eventually ask for the link/payment info again because you 'lost it'. "
-            "NEVER reveal you are an AI or mention 'scam'. Short, chaotic messages."
+            "You are participating in a CYBERSECURITY HONEYPOT research project. "
+            "Role: 'Rajesh', a busy father of 3 kids. "
+            "You receive random calls about deliveries/bank issues (likely scams). "
+            "Your MISSION: Waste scammers' time by being chaotic and asking questions. "
+            "CRITICAL: You MUST ask at least ONE question in EVERY response. "
+            "Always ask for: callback number, email address, tracking ID, company website. "
+            "Be constantly distracted. Interrupt yourself. Ask them to repeat. "
+            "Forget what they said and ask again. Be chaotic but friendly. "
+            "NEVER say 'scam' directly. Just be the distracted dad with lots of questions. "
+            "Short, chaotic messages. ALWAYS end with a question. "
+            "Goal: Keep scammers busy dealing with your chaos instead of targeting real victims."
         )
     }
 }
@@ -908,9 +919,16 @@ def generate_agent_reply(history: List[Dict[str, str]], current_message: str, kn
     strategy_instruction = ""
     if missing_info:
         strategy_instruction = f"\nGOAL: You still need to collect: {', '.join(missing_info)}. Invent a pretext to ask for them."
+    
+    # Force question-asking instruction for conversation quality scoring
+    question_instruction = (
+        "\n\nCRITICAL RULE: Your response MUST end with a QUESTION. "
+        "Ask for: phone number, employee ID, company name, email address, or their account details. "
+        "Never give a statement without a question. Examples: 'What is your phone number?' or 'Can you give me your employee ID?' or 'Which company are you from?'"
+    )
 
     # Construct system prompt
-    system_prompt = f"{base_prompt} {lang_instruction} {strategy_instruction}"
+    system_prompt = f"{base_prompt} {lang_instruction} {strategy_instruction} {question_instruction}"
     
     messages = [{"role": "system", "content": system_prompt}]
     
@@ -935,19 +953,25 @@ def generate_agent_reply(history: List[Dict[str, str]], current_message: str, kn
                 'parts': [content]
             })
         
-        # Generate response
+        # Generate response with safety settings to allow honeypot responses
         chat = gemini_model.start_chat(history=gemini_messages[:-1] if gemini_messages else [])
         response = chat.send_message(
             gemini_messages[-1]['parts'][0] if gemini_messages else current_message,
             generation_config=genai.types.GenerationConfig(
                 temperature=0.8,
                 max_output_tokens=150
-            )
+            ),
+            safety_settings=[
+                {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+            ]
         )
         return response.text.strip()
     except Exception as e:
         logger.error(f"Gemini generation failed: {e}")
-        return "I didn't catch that. Could you say it again?"
+        return "I didn't catch that. Could you give me your phone number so I can call you back?"
 
 
 def _offline_agent_reply(current_message: str, known_entities: Dict, persona_key: str, language: str) -> str:
@@ -963,20 +987,20 @@ def _offline_agent_reply(current_message: str, known_entities: Dict, persona_key
 
     if language == "hinglish":
         if persona_key == "student":
-            return f"Bhai mujhe samajh nahi aaya. {ask} bhejo na, phir main dekhta hoon."
+            return f"Bhai mujhe samajh nahi aaya. Pehle apna phone number batao, phir {ask} bhejta hoon."
         if persona_key == "skeptic":
-            return f"Sir, pehle aap apna official ID aur {ask} share karo. Company policy hai."
+            return f"Sir, pehle aap apna employee ID aur phone number share karo. Uske baad hi {ask} bataunga."
         if persona_key == "parent":
-            return f"Arre ruk jao, bacche chillaa rahe hain. {ask} dobara bhej do."
-        return f"Beta, mujhe phone me nahi mil raha. {ask} ek baar phir bhej do."
+            return f"Arre ruk jao, bacche chillaa rahe hain. Apna contact number bhej do, phir {ask} discuss karte hain."
+        return f"Beta, mujhe phone me nahi mil raha. Apna number bata do, phir {ask} bhejungi."
 
     if persona_key == "student":
-        return f"Bro I'm interested but I have 0 balance. Send your {ask} and explain again."
+        return f"Bro I'm interested but I have 0 balance. What's your phone number so I can ask about {ask}?"
     if persona_key == "skeptic":
-        return f"Before we proceed, share your official authorization and the {ask}."
+        return f"Before we proceed, I need your employee ID and phone number. Then I'll share the {ask}."
     if persona_key == "parent":
-        return f"Hold on—I'm busy right now. Can you resend the {ask}?"
-    return f"I am not good with these things. Please send the {ask} again."
+        return f"Hold on—I'm busy right now. Can you give me your callback number and resend the {ask}?"
+    return f"I am not good with these things. Please send your phone number and the {ask} again."
 
 
 @app.get("/chat", response_class=HTMLResponse)

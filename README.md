@@ -11,8 +11,6 @@ pip install -r requirements.txt
 # Set API key (required)
 export HONEYPOT_API_KEY="honeypot_key_2026_eval"
 
-# Optional: Set Groq API key for AI responses
-export GROQ_API_KEY="your_groq_key"
 
 # Run server
 uvicorn main:app --reload
