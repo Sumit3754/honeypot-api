@@ -27,7 +27,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Constants
-API_KEY = os.getenv("HONEYPOT_API_KEY", "hackathon-secret-key")
+API_KEY = os.getenv("HONEYPOT_API_KEY", "honeypot_key_2026_eval")
 CALLBACK_URL = "https://hackathon.guvi.in/api/updateHoneyPotFinalResult"
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
@@ -1023,8 +1023,8 @@ async def chat_ui():
               </div>
 
               <div style="margin-bottom: 10px">
-                <label>x-api-key (defaults to hackathon-secret-key)</label>
-                <input id="apiKey" type="text" value="hackathon-secret-key" />
+                <label>x-api-key (defaults to honeypot_key_2026_eval)</label>
+                <input id="apiKey" type="text" value="honeypot_key_2026_eval" />
               </div>
 
               <div style="margin-bottom: 10px">
