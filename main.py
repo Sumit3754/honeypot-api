@@ -1190,8 +1190,9 @@ async def check_and_send_callback(session_id: str, history: List[Message], curre
     elicitation_attempts = state.get('elicitation_attempts', min(7, total_messages))
     
     if is_scam and (total_messages >= 4 or has_critical_info):
-        all_text = (current_msg.text or "") + " " + " ".join([m.text or "" for m in history])
-        aggregated_entities = extract_entities(all_text)
+        # Use the entities already extracted in the analyze endpoint
+        # Don't re-extract here as history objects may be serialized
+        aggregated_entities = entities if entities else extract_entities((current_msg.text or "") + " " + " ".join([str(getattr(m, 'text', '')) for m in history]))
         
         # Ensure all required intelligence fields exist
         extracted_intel = {
