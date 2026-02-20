@@ -9,7 +9,7 @@ import json
 import time
 
 # Set API key
-os.environ['GEMINI_API_KEY'] = 'AIzaSyBBc-Qa2ptjELuVXEZNxcHkJzOALOdymN8'
+os.environ['GEMINI_API_KEY']
 
 BASE_URL = "http://localhost:8000"
 API_ENDPOINT = f"{BASE_URL}/analyze"
