@@ -1,0 +1,25 @@
+
+Traceback (most recent call last):
+====================================================================================================
+FINAL COMPREHENSIVE EVALUATION TEST
+Complete Chat Logs & Actual Score Calculation
+====================================================================================================
+  File "C:\Users\chauh\Downloads\honeypot-api---Copy-main\honeypot-api---Copy-main\test_final_evaluation.py", line 211, in run_all_tests
+    print(f"\n\u2705 API Status: {health.json()}")
+  File "C:\Users\chauh\AppData\Local\Programs\Python\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 2: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\chauh\Downloads\honeypot-api---Copy-main\honeypot-api---Copy-main\test_final_evaluation.py", line 307, in <module>
+    final_score = tester.run_all_tests()
+                  ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\chauh\Downloads\honeypot-api---Copy-main\honeypot-api---Copy-main\test_final_evaluation.py", line 213, in run_all_tests
+    print(f"\n\u274c API not running at {BASE_URL}")
+  File "C:\Users\chauh\AppData\Local\Programs\Python\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 2: character maps to <undefined>

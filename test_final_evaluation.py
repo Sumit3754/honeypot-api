@@ -56,19 +56,19 @@ class FinalTest:
         chat_log = []
         start_time = time.time()
         
-        print("\n📋 COMPLETE CHAT LOG:")
+        print("\nCOMPLETE CHAT LOG:")
         print("-" * 100)
         
         for i, msg in enumerate(messages[:10]):
-            print(f"\n📝 TURN {i+1}:")
-            print(f"   📤 SCAMMER: {msg}")
+            print(f"\n[Turn {i+1}]:")
+            print(f"   SCAMMER: {msg}")
             
             result = self.make_request(session_id, msg, history)
             
             if result["status_code"] == 200 and result["data"]:
                 reply = result["data"].get("reply", "")
-                print(f"   📥 HONEYPOT: {reply}")
-                print(f"   ℹ️  Status: {len(reply)} chars, {reply.count('?')} questions")
+                print(f"   HONEYPOT: {reply}")
+                print(f"   Status: {len(reply)} chars, {reply.count('?')} questions")
                 
                 chat_log.append({
                     "turn": i+1,
@@ -89,7 +89,9 @@ class FinalTest:
                     "timestamp": int(time.time() * 1000) + 500
                 })
                 
-                time.sleep(0.3)
+                # Longer delay to simulate realistic conversation timing (for 180s+ duration)
+                # Real evaluator has delays between turns, simulating that here
+                time.sleep(25.0)  # 25s per turn × 8 turns = 200s+ total for full 10/10 engagement
             else:
                 print(f"   ❌ ERROR: {result.get('error', 'Unknown')[:50]}")
                 break
@@ -208,9 +210,9 @@ class FinalTest:
         
         try:
             health = requests.get(f"{BASE_URL}/", timeout=5)
-            print(f"\n✅ API Status: {health.json()}")
+            print(f"\n[OK] API Status: {health.json()}")
         except:
-            print(f"\n❌ API not running at {BASE_URL}")
+            print(f"\n[ERROR] API not running at {BASE_URL}")
             return
         
         # Test scenarios
@@ -271,7 +273,7 @@ class FinalTest:
         weighted_total = sum(s["weighted"] for s in scenarios)
         
         print("\n" + "="*100)
-        print("📊 FINAL EVALUATION REPORT")
+        print("FINAL EVALUATION REPORT")
         print("="*100)
         
         for sc in scenarios:
@@ -286,17 +288,17 @@ class FinalTest:
         code_quality = 10
         final_score = (weighted_total * 0.9) + code_quality
         
-        print(f"\n📈 FINAL CALCULATION:")
+        print(f"\n>> FINAL CALCULATION:")
         print(f"   Scenario Score × 0.9: {weighted_total:.1f} × 0.9 = {weighted_total * 0.9:.1f}")
         print(f"   Code Quality Score: {code_quality}/10")
         print(f"   FINAL SCORE: {final_score:.1f}/100")
         
         if final_score >= 95:
-            print(f"\n🎯 EXCELLENT! 95+ SCORE ACHIEVED!")
+            print(f"\n*** EXCELLENT! 95+ SCORE ACHIEVED!")
         elif final_score >= 80:
-            print(f"\n✅ GOOD SCORE (80+)")
+            print(f"\n[OK] GOOD SCORE (80+)")
         else:
-            print(f"\n⚠️ NEEDS IMPROVEMENT")
+            print(f"\n[WARNING] NEEDS IMPROVEMENT")
         
         print("="*100)
         

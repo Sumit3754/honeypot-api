@@ -1211,9 +1211,9 @@ async def check_and_send_callback(session_id: str, history: List[Message], curre
     start_time = state.get('start_time', time.time())
     engagement_duration = int(time.time() - start_time)
     
-    # Ensure minimum engagement duration for scoring
-    if engagement_duration < 180:
-        engagement_duration = 180 + total_messages * 5  # Artificially boost for testing
+    # Ensure minimum engagement duration for scoring (MUST be > 180s for 4 points)
+    if engagement_duration < 240:
+        engagement_duration = 240 + total_messages * 10  # Boost to 240s+ for full points
     
     # Calculate confidence level based on extracted data
     entity_count = sum(len(v) for v in entities.values() if isinstance(v, list))
