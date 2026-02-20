@@ -955,18 +955,22 @@ def generate_agent_reply(history: List[Dict[str, str]], current_message: str, kn
         
         # Generate response with safety settings to allow honeypot responses
         chat = gemini_model.start_chat(history=gemini_messages[:-1] if gemini_messages else [])
+        
+        # Safety settings in the format expected by the API
+        safety_settings = {
+            "HARASSMENT": "BLOCK_NONE",
+            "HATE_SPEECH": "BLOCK_NONE", 
+            "SEXUALLY_EXPLICIT": "BLOCK_NONE",
+            "DANGEROUS_CONTENT": "BLOCK_NONE"
+        }
+        
         response = chat.send_message(
             gemini_messages[-1]['parts'][0] if gemini_messages else current_message,
             generation_config=genai.types.GenerationConfig(
-                temperature=0.8,
+                temperature=0.9,
                 max_output_tokens=150
             ),
-            safety_settings=[
-                {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
-                {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-                {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-                {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
-            ]
+            safety_settings=safety_settings
         )
         return response.text.strip()
     except Exception as e:
