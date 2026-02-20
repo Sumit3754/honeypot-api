@@ -89,8 +89,8 @@ async def startup_event():
     # 2. Initialize Gemini Model
     if GEMINI_API_KEY:
         try:
-            gemini_model = genai.GenerativeModel('gemini-2.0-flash')
-            logger.info("Gemini model initialized (gemini-2.0-flash).")
+            gemini_model = genai.GenerativeModel('gemini-2.5-flash')
+            logger.info("Gemini model initialized (gemini-2.5-flash).")
         except Exception as e:
             logger.error(f"Error initializing Gemini model: {e}")
     else:
@@ -786,7 +786,7 @@ async def ui_run_test(payload: UIRunRequest):
 session_state: Dict[str, Dict[str, Any]] = {}
 
 def select_persona_and_language(text: str) -> tuple[str, str]:
-    """Uses Gemini 2.0 Flash to select the best persona and language."""
+    """Uses Gemini 2.5 Flash to select the best persona and language."""
     if not gemini_model:
         return _heuristic_persona_and_language(text)
     
@@ -877,7 +877,7 @@ def _heuristic_persona_and_language(text: str) -> tuple[str, str]:
     return "parent", language
 
 def generate_agent_reply(history: List[Dict[str, str]], current_message: str, known_entities: Dict, persona_key: str = "grandma", language: str = "english") -> str:
-    """Generates a response using Gemini 2.0 Flash with the SELECTED persona and LANGUAGE."""
+    """Generates a response using Gemini 2.5 Flash with the SELECTED persona and LANGUAGE."""
     if not gemini_model:
         return _offline_agent_reply(current_message, known_entities, persona_key, language)
 
