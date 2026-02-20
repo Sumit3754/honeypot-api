@@ -835,7 +835,7 @@ def select_persona_and_language(text: str) -> tuple[str, str]:
             [system_prompt, f"Message: {text}"],
             generation_config=genai.types.GenerationConfig(
                 temperature=0.1,
-                max_output_tokens=20
+                max_output_tokens=100
             )
         )
         
