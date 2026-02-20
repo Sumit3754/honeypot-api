@@ -12,7 +12,7 @@ from typing import Dict, List, Any
 # API Configuration
 BASE_URL = "http://localhost:8000"
 API_ENDPOINT = f"{BASE_URL}/analyze"
-API_KEY = "hackathon-secret-key"
+API_KEY = "honeypot_key_2026_eval"
 
 # Test Scenarios - All 12 scenarios from evaluation criteria
 SCENARIOS = [
