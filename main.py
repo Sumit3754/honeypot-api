@@ -89,7 +89,7 @@ async def startup_event():
     # 2. Initialize Gemini Model
     if GEMINI_API_KEY:
         try:
-            gemini_model = genai.GenerativeModel('gemini-2.0-flash')
+            gemini_model = genai.GenerativeModel('gemini-2.5-flash')
             logger.info("Gemini model initialized (gemini-2.5-flash-preview).")
         except Exception as e:
             logger.error(f"Error initializing Gemini model: {e}")
